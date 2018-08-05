@@ -10,12 +10,17 @@ function setup() {
 function draw() {
 	background(255);
 	keyPressed();
-	rocket1.calcVelocity();
 	push();
+	rocket1.detectCollision();
+	if(!rocket1.landed){
+	rocket1.calcVelocity();
 	rocket1.moveRocket();
+}
+
 	rocket1.showRocket();
 	pop();
 	land1.showLand();
+	rocket1.drawFuel();
 }
 class land {
 	constructor(top, bottom, platforms){
@@ -87,7 +92,10 @@ class rocket {
 		this.velocity = [0,0];
 		this.acceleration = [0,0];
 		this.engine = .10;
-		this.engineOn = false;
+		this.engineOn = false
+		this.landed = false;
+		this.crashed = false;
+		this.fuel = 100;
 
 	}
 
@@ -108,13 +116,56 @@ class rocket {
 		translate(this.position[0],-this.position[1]);
 	}
 
+	consumeFuel(){
+		this.fuel = this.fuel-.4;
+	}
+	drawFuel(){
+		fill('rgb(0,0,0)');
+		stroke('rgb(0,0,0)');
+		rect(windowWidth-windowWidth/10,110,20,100);
+		fill('rgb(255,255,255)');
+		if(this.fuel>=0){
+			rect(windowWidth-windowWidth/10,110-this.fuel/2,20,100-this.fuel);
+		}else{
+			rect(windowWidth-windowWidth/10,110,20,100);
+		}
+
+	}
+
 	showRocket(){
-		stroke('#222222');
+		if(this.crashed){
+			fill('rgb(255,0,0)');
+			stroke('rgb(255,0,0)');
+		}else if (this.landed){
+			fill('rgb(0,255,0)');
+			stroke('rgb(0,255,0)');
+
+		}
+		else{
+			stroke('#222222');
+		}
 		strokeWeight(1);
 		translate(this.x,this.y);
 		rotate(this.angle);
 		rect(0,0,this.width, this.height);
 		triangle(this.width-(this.width/2),this.height-(this.height/2),-this.width/2+1,this.height-(this.height/2),0,this.height/2 + this .flameSize);
+	}
+
+	detectCollision(){
+		for(var i = 1;i<=land1.platforms*2;i++){
+			if(this.position[0]+50>=land1.terrainX[i] && this.position[0]+50 <= land1.terrainX[i+1] && abs(this.position[1]-50 -rocket1.height/2) >= land1.terrainY[i]){
+
+					this.landed = true;
+					translate(this.position[0],-this.position[1]);
+					if(abs(this.velocity[0])>.6 || abs(this.velocity[1])>.6){
+						this.crashed = true;
+					}
+
+				//print(abs(this.position[1])+ "   " + land1.terrainY[i]);
+				//print(this.position[0] + "  " + land1.terrainX[i] + "  " + land1.terrainX[i+1]);
+			}
+			i++ ;
+		}
 	}
 
 }
@@ -126,8 +177,8 @@ function keyPressed(){
 	if(keyIsDown(RIGHT_ARROW)){
 		rocket1.angle = rocket1.angle + rocket1.turnSpeed;
 	}
-	if(keyIsDown(32)){
-
+	if(keyIsDown(32) && rocket1.fuel>0){
+		rocket1.consumeFuel();
 		rocket1.engineOn = true;
 
 		rocket1.flameSize = rocket1.flameSize+.75;
