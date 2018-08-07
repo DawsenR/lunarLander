@@ -1,3 +1,10 @@
+//Dawsen Richins
+//8/5/2018
+//lunar lander game where you have a certain amount of gas and must land on green platforms softly
+//game is not finished as you can still go off the map and through the mountain sides
+
+
+
 function setup() {
 	createCanvas(windowWidth, windowHeight);
 	background(255);
@@ -22,6 +29,8 @@ function draw() {
 	land1.showLand();
 	rocket1.drawFuel();
 }
+
+//land object that creates a randomly generated terrainX
 class land {
 	constructor(top, bottom, platforms){
 			this.gravity = .025;
@@ -45,8 +54,6 @@ class land {
 			for(var i = 1; i <points; i++){
 				randX = randX2 + randX + random(rocket1.width,this.scale);
 				randX2 = random(rocket1.width,this.scale);
-				// print(randX + "    one");
-				// print(randX+randX2 + "    two");
 				randY = random(this.top,this.bottom);-1
 				this.terrainX[i] = randX;
 				this.terrainY[i] = randY;
@@ -57,7 +64,7 @@ class land {
 
 
 		}
-
+			//function for displaying the land and making the platforms green and the mountain side black
 			showLand(){
 				var j =0;
 				for(j = 0; j<this.platforms*2; j++){
@@ -78,6 +85,7 @@ class land {
 
 	}
 
+//rocket class that controls many attributes of the rocket
 class rocket {
 
 	constructor(width, height, x, y){
@@ -99,6 +107,7 @@ class rocket {
 
 	}
 
+//calculates the velocity of the rocket which in this program correlates to where the rocket is drawn
 	calcVelocity(){
 		if(this.engineOn){
 			this.velocity[1] = this.velocity[1] + this.engine*cos(this.angle) - land1.gravity; //vertical
@@ -151,6 +160,8 @@ class rocket {
 		triangle(this.width-(this.width/2),this.height-(this.height/2),-this.width/2+1,this.height-(this.height/2),0,this.height/2 + this .flameSize);
 	}
 
+//only detects collision with green markers at this point but will be changed in the future
+//to incorporate mountainside terrain
 	detectCollision(){
 		for(var i = 1;i<=land1.platforms*2;i++){
 			if(this.position[0]+50>=land1.terrainX[i] && this.position[0]+50 <= land1.terrainX[i+1] && abs(this.position[1]-50 -rocket1.height/2) >= land1.terrainY[i]){
